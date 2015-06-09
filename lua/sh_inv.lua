@@ -24,7 +24,7 @@ function inv.DB_LoadContainerObject( uniqueID, classname, callback ) end
 function inv.DB_LoadItemObject( uniqueID ) end
 
 if CLIENT then
-	netstream.Hook("DayZInv_net.contrainer", function( inventoryTable, inventoryID, inventoryClass, inventoryOwnerID ) end)
+	netstream.Hook("DayZInv_net.container", function( inventoryTable, inventoryID, inventoryClass, inventoryOwnerID ) end)
 	netstream.Hook("DayZInv_net.containerItem.Set", function( inventoryID, x, y, itemClassname, itemUniqueID, inventoryOwnerID, itemData ) end)
 	netstream.Hook("DayZInv_net.containerItem.Rm", function( itemUniqueID, inventoryID ) end)
 else
