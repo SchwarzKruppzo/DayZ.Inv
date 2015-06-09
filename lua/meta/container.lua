@@ -34,7 +34,7 @@ function META:SetOwner( entity, updateDB )
 			end
 		end
 
-		database.Query( "UPDATE dayg_containers SET _steamID = "..steamID.." WHERE _uniqueID = " .. self:GetUniqueID() )
+		database.Query( "UPDATE dayzinv_containers SET _steamID = "..steamID.." WHERE _uniqueID = " .. self:GetUniqueID() )
 	end
 
 	self.ownerID = steamID
@@ -126,7 +126,7 @@ function META:RemoveItemByID( uniqueID, NoSend, NoDelete )
 		if !NoSend then
 			local owner = self:GetOwner()
 
-			netstream.Start( owner, "DayG_net.contrainerItem.Rm", uniqueID, self:GetUniqueID() )
+			netstream.Start( owner, "DayZInv_net.contrainerItem.Rm", uniqueID, self:GetUniqueID() )
 
 			if !NoDelete then
 				local item = inv.allItems[ uniqueID ]
@@ -135,7 +135,7 @@ function META:RemoveItemByID( uniqueID, NoSend, NoDelete )
 					item:OnRemove()
 				end
 
-				database.Query("DELETE FROM dayg_items WHERE _uniqueID = " .. uniqueID )
+				database.Query("DELETE FROM dayzinv_items WHERE _uniqueID = " .. uniqueID )
 				
 				inv.allItems[ uniqueID ] = nil
 			end
@@ -205,7 +205,7 @@ if SERVER then
 	function META:SendSlot( x, y, item, receiver )
 		receiver = receiver or self:GetOwner()
 
-		netstream.Start( receiver, "DayG_net.contrainerItem.Set", self:GetUniqueID(), x, y, item.class, item.uniqueID, self.ownerID, item.Data)
+		netstream.Start( receiver, "DayZInv_net.contrainerItem.Set", self:GetUniqueID(), x, y, item.class, item.uniqueID, self.ownerID, item.Data)
 
 		if item then
 			if type(receiver) == "table" then
@@ -248,7 +248,7 @@ if SERVER then
 						self:SendSlot( x, y, item )
 					end
 			
-					database.Query("UPDATE dayg_items SET _invID = "..self:GetUniqueID()..", _ownerInvID = "..item.ownerInvID..", _x = "..x..", _y = "..y..", _data = "..item.data.." WHERE _uniqueID = "..item.uniqueID)
+					database.Query("UPDATE dayzinv_items SET _invID = "..self:GetUniqueID()..", _ownerInvID = "..item.ownerInvID..", _x = "..x..", _y = "..y..", _data = "..item.data.." WHERE _uniqueID = "..item.uniqueID)
 
 					return x, y, self:GetUniqueID()
 				else
@@ -320,7 +320,7 @@ if SERVER then
 			end
 		end
 
-		netstream.Start( receiver, "DayG_net.contrainer", inventory, self:GetUniqueID(), self:GetClass(), self.ownerID )
+		netstream.Start( receiver, "DayZInv_net.contrainer", inventory, self:GetUniqueID(), self:GetClass(), self.ownerID )
 
 		for k, v in pairs( self:GetItems() ) do
 			v:Call( "OnSendInventory", receiver )
