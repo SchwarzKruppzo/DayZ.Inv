@@ -126,7 +126,7 @@ function META:RemoveItemByID( uniqueID, NoSend, NoDelete )
 		if !NoSend then
 			local owner = self:GetOwner()
 
-			netstream.Start( owner, "DayZInv_net.contrainerItem.Rm", uniqueID, self:GetUniqueID() )
+			netstream.Start( owner, "DayZInv_net.containerItem.Rm", uniqueID, self:GetUniqueID() )
 
 			if !NoDelete then
 				local item = inv.allItems[ uniqueID ]
@@ -205,7 +205,7 @@ if SERVER then
 	function META:SendSlot( x, y, item, receiver )
 		receiver = receiver or self:GetOwner()
 
-		netstream.Start( receiver, "DayZInv_net.contrainerItem.Set", self:GetUniqueID(), x, y, item.class, item.uniqueID, self.ownerID, item.Data)
+		netstream.Start( receiver, "DayZInv_net.containerItem.Set", self:GetUniqueID(), x, y, item.class, item.uniqueID, self.ownerID, item.Data)
 
 		if item then
 			if type(receiver) == "table" then
@@ -272,7 +272,7 @@ if SERVER then
 				self.inventory[y] = self.inventory[y] or {}
 				self.inventory[y][x] = {}
 
-				inv.CreateItemObject( self:GetUniqueID(), classOrID, data, x, y, function( item )
+				inv.DB_CreateItemObject( self:GetUniqueID(), classOrID, data, x, y, function( item )
 					if data then
 						item.data = table.Merge( item.data, data )
 					end
@@ -320,7 +320,7 @@ if SERVER then
 			end
 		end
 
-		netstream.Start( receiver, "DayZInv_net.contrainer", inventory, self:GetUniqueID(), self:GetClass(), self.ownerID )
+		netstream.Start( receiver, "DayZInv_net.container", inventory, self:GetUniqueID(), self:GetClass(), self.ownerID )
 
 		for k, v in pairs( self:GetItems() ) do
 			v:Call( "OnSendInventory", receiver )
