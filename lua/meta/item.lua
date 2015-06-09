@@ -40,7 +40,7 @@ function ITEM:GetOwner() end
 function ITEM:GetData() end
 function ITEM:SetData( key, value, receivers, NoSave, NoSetEntity ) end
 function ITEM:Call( func, ... ) end
-function ITEM:Remove() end
+function ITEM:Remove( NoSend, NoDeleteEntity ) end
 
 if SERVER then
 	function ITEM:Spawn( pos, ang ) end
