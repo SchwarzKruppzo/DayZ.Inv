@@ -13,3 +13,6 @@ include("external/sh_pon.lua")
 include("meta/container.lua")
 include("meta/item.lua")
 include("sh_inv.lua")
+
+inv.LoadFromDirectory( "classes/containers", false )
+inv.LoadFromDirectory( "classes/items", true )
