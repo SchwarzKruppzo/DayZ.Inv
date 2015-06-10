@@ -125,8 +125,91 @@ function inv.RegisterContainerClass( classname, base, isBase, path )
 	end
 end
 
-function inv.DB_CreateItemObject( inventoryID, classname, data, x, y, callback ) end
-function inv.DB_CreateContainerObject( owner, classname, callback ) end
+function inv.DB_CreateItemObject( inventoryID, classname, data, x, y, callback ) 
+	if !classname or inv.classItems[classname] then
+		local containerID = nil
+		if inv.classItems[classname]:IsContainer() then
+			local owner = 0
+			local containerOwned = inv.allContainers[inventoryID]
+			if containerOwned then
+				owner = (containerOwned.GetOwner and containerOwned:GetOwner() or 0)
+			end
+			local containerInfo = { Name = "unknown", Model = "", Width = 1, Height = 1 }
+			if inv.classItems[classname].ContainerInfo then
+				containerInfo.Name = inv.classItems[classname].Name
+				containerInfo.Model = inv.classItems[classname].Model
+				containerInfo.Width = inv.classItems[classname].Width
+				containerInfo.Height = inv.classItems[classname].Height
+			end
+			containerID = inv.DB_CreateContainerObject( owner, containerInfo )
+		end
+		database.InsertTable( {
+			_invID = inventoryID,
+			_ownerInvID = containerID,
+			_class = classname,
+			_data = data,
+			_x = x,
+			_y = y
+		}, function( data, uniqueID )
+			local item = inv.NewItemObject( uniqueID, classname )
+
+			if item then
+				item.Data = ( data or {} )
+				item.invID = inventoryID
+
+				if containerID then
+					if inv.allContainers[containerID] then
+						item.ownerInvID = containerID
+						inv.allContainers[containerID].ownedItemID = uniqueID
+					end
+				end
+
+				if callback then
+					callback( item )
+				end
+
+				if item.OnInstanced then
+					item:OnInstanced(index, x, y, item)
+				end
+			end
+		end, "items" )
+	else
+		ErrorNoHalt("[DayZInv] Attempt to give item: Invalid item specifed. ("..( classname or "nil" )..")\n")
+	end
+end
+
+function inv.DB_CreateContainerObject( owner, classname, containerItemID, callback ) 
+	local containerInfo = nil
+
+	if type( classname ) == "table" then
+		containerInfo = classname
+	else
+		containerInfo = inv.classContainers[classname] or { Name = "unknown", Model = "", Width = 1, Height = 1 }
+	end
+
+	database.InsertTable( {
+		_steamID = (owner > 0) and ( (type( owner ) == "Player") and owner:SteamID() or tostring( owner ) ) or nil,
+		_ownerItemID = containerItemID,
+		_class = classname
+	}, function( data, uniqueID )
+		local container = inv.NewContainerObject( uniqueID, containerInfo, containerItemID )
+
+		if owner and owner > 0 then
+			for k, v in pairs( player.GetAll() ) do
+				if v == owner then
+					container:SetOwner( v )
+					container:SendInventory( v )
+
+					break
+				end
+			end
+		end
+
+		if callback then
+			callback( container )
+		end
+	end, "containers" )
+end
 
 function inv.LoadItemClasses( file, path, base, isBase ) 
 	local classname = string.gsub( class:lower(), ".lua", "" )
@@ -185,7 +268,7 @@ function inv.NewItemObject( uniqueID, classname )
 		ErrorNoHalt("[DayZInv] Attempt to index unknown item. ("..classname..")\n")
 	end
 end
-function inv.NewContainerObject( uniqueID, classname ) 
+function inv.NewContainerObject( uniqueID, classname, containerItemID ) 
 	if inv.allContainers[uniqueID] then
 		return inv.allContainers[uniqueID]
 	end
@@ -198,6 +281,7 @@ function inv.NewContainerObject( uniqueID, classname )
 		container.class = classname
 		container.w = containerType.Width
 		container.h = containerType.Height
+		container.ownedItemID = containerItemID
 
 		inv.allContainers[uniqueID] = container
 
