@@ -274,7 +274,7 @@ if SERVER then
 
 				inv.DB_CreateItemObject( self:GetUniqueID(), classOrID, data, x, y, function( item )
 					if data then
-						item.data = table.Merge( item.data, data )
+						item.Data = table.Merge( item.Data, data )
 					end
 
 					item.posX = x
@@ -302,7 +302,7 @@ if SERVER then
 		end
 	end
 	
-	function META:SendInventory( receiver, isFullUpdate )
+	function META:SendInventory( receiver )
 		local inventory = {}
 
 		for y = 0, self.h - 1 do
