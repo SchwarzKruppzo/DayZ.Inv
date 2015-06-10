@@ -149,7 +149,7 @@ function inv.LoadFromDirectory( directory, isItem )
 
 	local files, folders = file.Find( directory.."/base/*.lua", "LUA" )
 	for k, v in ipairs(files) do
-		loadFunction( directory.."/base/"..v, nil, true )
+		loadFunction( v, directory.."/base/"..v, nil, true )
 	end
 
 	local files, folders = file.Find( directory.."/*", "LUA" )
@@ -157,12 +157,12 @@ function inv.LoadFromDirectory( directory, isItem )
 		if v == "base" then continue end
 		
 		for z, x in ipairs( file.Find( directory.."/"..v.."/*.lua", "LUA" ) ) do
-			loadFunction( directory.."/"..v .. "/".. x, "base_"..v )
+			loadFunction( x, directory.."/"..v .. "/".. x, "base_"..v )
 		end
 	end
 
 	for k, v in ipairs( files ) do
-		loadFunction( directory.."/"..v )
+		loadFunction( v, directory.."/"..v )
 	end 
 end
 
