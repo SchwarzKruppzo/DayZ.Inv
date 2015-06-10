@@ -173,7 +173,8 @@ local MYSQL_CREATE_TABLES = [[
 CREATE TABLE IF NOT EXISTS `dayzinv_containers` (
 	`_uniqueID` int(11) unsigned NOT NULL AUTO_INCREMENT,
 	`_steamID` varchar(100) DEFAULT NULL,
-	`_class` varchar(60) NOT NULL,
+	`_class` varchar(128) NOT NULL,
+	`_ownedItemID` int(11) unsigned DEFAULT NULL,
 	PRIMARY KEY (`_uniqueID`)
 );
 
@@ -193,7 +194,8 @@ local SQLITE_CREATE_TABLES = [[
 CREATE TABLE IF NOT EXISTS `dayzinv_containers` (
 	`_uniqueID` INTEGER PRIMARY KEY,
 	`_steamID` TEXT,
-	`_class` TEXT
+	`_class` TEXT,
+	`_ownedItemID` INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS `dayzinv_items` (
