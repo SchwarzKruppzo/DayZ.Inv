@@ -9,7 +9,7 @@ ITEM.ContainerInfo = {
 ITEM.Data = {
 	exampleVar = true
 }
-ITEM.action.Open = {
+ITEM.actions.Open = {
 	Text = "Open",
 	OnRun = function( itemObject, activator, itemEntity )
 		// bla bla bla

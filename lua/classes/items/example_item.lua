@@ -5,7 +5,7 @@ ITEM.Model = "models/props_junk/popcan01a.mdl"
 ITEM.Data = {
 	exampleVar = true
 }
-ITEM.action.Example = {
+ITEM.actions.Example = {
 	Text = "Example Action",
 	OnRun = function( itemObject, activator, itemEntity )
 		print( "Object: "..itemObject )
