@@ -59,18 +59,22 @@ function inv.RegisterItemClass( classname, base, isBase, path )
 			end
 		end
 
-		include( path )
+		load.Include( path )
 
-		(isBase and inv.baseItems or inv.classItems)[ITEM.uniqueID] = ITEM
-
+		if isBase then
+			inv.baseItems[ITEM.class] = ITEM
+		else
+			inv.classItems[ITEM.class] = ITEM
+		end
+		
 		ITEM = nil
 	else
 		ErrorNoHalt("[DayZInv] Attempt to register item: No such classname found.\n")
 	end
 end
-function inv.RegisterContainerClass( classname, base, isBase, path ) 
+function inv.RegisterContainerClass( classname, base, isBase, path )
 	if classname then
-		CONTAINER = (isBase and inv.baseContainers or inv.classContainers)[classname] or {})
+		CONTAINER = ((isBase and inv.baseContainers or inv.classContainers)[classname]) or {}
 		CONTAINER.class = classname
 		CONTAINER.base = base
 		function CONTAINER:IsBase()
@@ -115,9 +119,13 @@ function inv.RegisterContainerClass( classname, base, isBase, path )
 			end
 		end
 
-		include( path )
-
-		(isBase and inv.baseContainers or inv.classContainers)[CONTAINER.uniqueID] = CONTAINER
+		load.Include( path )
+		
+		if isBase then
+			inv.baseContainers[CONTAINER.class] = CONTAINER
+		else
+			inv.classContainers[CONTAINER.class] = CONTAINER
+		end
 
 		CONTAINER = nil
 	else
@@ -212,17 +220,21 @@ function inv.DB_CreateContainerObject( owner, classname, containerItemID, callba
 end
 
 function inv.LoadItemClasses( file, path, base, isBase ) 
-	local classname = string.gsub( class:lower(), ".lua", "" )
+	local classname = string.gsub( file:lower(), ".lua", "" )
 
 	if classname then
+		if SERVER then AddCSLuaFile( path ) end
+		
 		classname = (isBase and "base_" or "")..classname
 		inv.RegisterItemClass( classname, base, isBase, path )
 	end
 end
 function inv.LoadContainerClasses( file, path, base, isBase ) 
-	local classname = string.gsub( class:lower(), ".lua", "" )
+	local classname = string.gsub( file:lower(), ".lua", "" )
 
 	if classname then
+		if SERVER then AddCSLuaFile( path ) end
+		
 		classname = (isBase and "base_" or "")..classname
 		inv.RegisterContainerClass( classname, base, isBase, path )
 	end
