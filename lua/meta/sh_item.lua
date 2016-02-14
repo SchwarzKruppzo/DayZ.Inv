@@ -1,6 +1,4 @@
-local _R = debug.getregistry()
-
-local ITEM = _R.Item or {}
+local ITEM = invmeta.item or {}
 ITEM.__index = ITEM
 ITEM.Name = "Unknown"
 ITEM.Width = ITEM.Width or 1
@@ -89,12 +87,12 @@ function ITEM:SetData( key, value, receivers, NoSave, NoSetEntity )
 
 	if receivers != false then
 		if receivers or self:GetOwner() then
-			netstream.Start( receivers or self:GetOwner(), "DayZInv_net.containerItem.Data", self:GetUniqueID(), key, value )
+			--netstream.Start( receivers or self:GetOwner(), "DayZInv_net.containerItem.Data", self:GetUniqueID(), key, value )
 		end
 	end
 
 	if !NoSave then
-		database.UpdateTable( { _data = self.Data }, nil, "items", "_uniqueID = "..self:GetUniqueID() )
+		--database.UpdateTable( { _data = self.Data }, nil, "items", "_uniqueID = "..self:GetUniqueID() )
 	end	
 end
 function ITEM:Call( func, player, entity, ... ) 
@@ -137,8 +135,8 @@ function ITEM:Remove( NoSend, NoDeleteEntity, NoDelete, NoDestroyContainer )
 				if linkedContainer then
 					inv.allContainers[self.ownerInvID] = nil
 
-					database.Query("DELETE FROM dayzinv_items WHERE _invID = "..self.ownerInvID)
-					database.Query("DELETE FROM dayzinv_containers WHERE _invID = "..self.ownerInvID)
+					--database.Query("DELETE FROM dayzinv_items WHERE _invID = "..self.ownerInvID)
+					--database.Query("DELETE FROM dayzinv_containers WHERE _invID = "..self.ownerInvID)
 
 					// TO DO: Send a refresh signal to the client that we want to delete the specifed container and item(s)?
 				end
@@ -147,7 +145,7 @@ function ITEM:Remove( NoSend, NoDeleteEntity, NoDelete, NoDestroyContainer )
 		if !NoSend then
 			local receiver = container.GetOwner and container:GetOwner()
 
-			netstream.Start( receiver, "DayZInv_net.containerItem.Rm", self.uniqueID, container:GetUniqueID() )
+			--netstream.Start( receiver, "DayZInv_net.containerItem.Rm", self.uniqueID, container:GetUniqueID() )
 		end
 		if !NoDelete then
 			local item = inv.allItems[self.uniqueID]
@@ -156,13 +154,31 @@ function ITEM:Remove( NoSend, NoDeleteEntity, NoDelete, NoDestroyContainer )
 				item:OnRemove()
 			end
 			
-			database.Query("DELETE FROM dayzinv_items WHERE _uniqueID = "..self.uniqueID)
+			--database.Query("DELETE FROM dayzinv_items WHERE _uniqueID = "..self.uniqueID)
 			inv.allItems[self.uniqueID] = nil
 		end
 	end
 end
 
 if SERVER then
+	function ITEM:Send( receiver )
+		local invID = self.invID or 0
+		local x = self.posX or 0
+		local y = self.posY or 0
+		local id = self.uniqueID or 0
+		local class = self.class or "tretiy_class))"
+		local ownerInvID = self.ownerInvID or nil
+		local data = self.Data and pon.encode( self.Data ) or "[]"
+		netstream.Start( receiver, "DayZInv_net.container.Item", invID, x, y, id, class, ownerInvID, data )
+
+		if !receiver or type( receiver ) == "table" then
+			for k, v in pairs( receiver ) do
+				self:Call( "OnSend", v )
+			end
+		elseif IsValid( receiver ) then
+			self:Call( "OnSend", receiver )
+		end
+	end
 	function ITEM:Spawn( pos, ang ) 
 		if inv.allItems[self:GetUniqueID()] then
 			local entity = ents.Create("dayzinv_item")
@@ -228,4 +244,4 @@ if SERVER then
 	end
 end
 
-_R.Item = ITEM
+invmeta.item = ITEM
