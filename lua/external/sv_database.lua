@@ -283,7 +283,7 @@ function database.InsertTable( value, callback, dbTable )
 
 	for k, v in pairs( value ) do
 		keys[#keys + 1] = k
-		values[#keys] = k:find("steamID") and v or database.ConvertDataType(v)
+		values[#keys] = database.ConvertDataType(v)
 	end
 
 	query = query..table.concat( keys, ", " )..") VALUES ("..table.concat( values, ", " )..")"
@@ -295,17 +295,9 @@ function database.UpdateTable( value, callback, dbTable, condition )
 	local changes = {}
 
 	for k, v in pairs(value) do
-		changes[#changes + 1] = k.." = "..(k:find("steamID") and v or database.ConvertDataType(v))
+		changes[#changes + 1] = k.." = "..database.ConvertDataType(v)
 	end
 
 	query = query..table.concat( changes, ", " )..(condition and " WHERE "..condition or "")
 	database.Query( query, callback )
 end
-
-
-database.Connect(function()
-	-- Create the SQL tables if they do not exist.
-	database.LoadTables()
-	
-	MsgC(Color(0, 255, 0), "DayZ.Inv has connected to the database.\n")
-end)
